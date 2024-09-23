@@ -62,25 +62,25 @@ return {
       clangd = {},
       gopls = {},
       basedpyright = {},
-      rust_analyzer = {
-        settings = {
-          ['rust-analyzer'] = {
-            cargo = {
-              allFeatures = true,
-            },
-            imports = {
-              group = {
-                enable = false,
-              },
-            },
-            completion = {
-              postfix = {
-                enable = true,
-              },
-            },
-          },
-        },
-      },
+      -- rust_analyzer = {
+      --   settings = {
+      --     ['rust-analyzer'] = {
+      --       cargo = {
+      --         allFeatures = true,
+      --       },
+      --       imports = {
+      --         group = {
+      --           enable = false,
+      --         },
+      --       },
+      --       completion = {
+      --         postfix = {
+      --           enable = true,
+      --         },
+      --       },
+      --     },
+      --   },
+      -- },
       zls = {},
       ruff = {
         settings = {
