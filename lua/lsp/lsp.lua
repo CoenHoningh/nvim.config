@@ -58,10 +58,11 @@ return {
     })
     local capabilities = vim.lsp.protocol.make_client_capabilities()
     capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+    local lspconfig = require 'lspconfig'
     local servers = {
-      clangd = {},
-      gopls = {},
-      basedpyright = {},
+      clangd = { manual_install = true },
+      gopls = true,
+      basedpyright = true,
       -- rust_analyzer = {
       --   settings = {
       --     ['rust-analyzer'] = {
@@ -81,20 +82,21 @@ return {
       --     },
       --   },
       -- },
-      zls = {},
+      zls = true,
       ruff = {
         settings = {
           configuration = '~/AppData/Local/ruff/ruff.toml',
         },
       },
       hls = {
+        manual_install = true,
         cmd = { 'C:/ghcup/bin/haskell-language-server-wrapper.exe', '--lsp' },
       },
       ts_ls = {
         { 'typescript-language-server.cmd', '--stdio' },
       },
-      svelte = {},
-      marksman = {},
+      svelte = true,
+      marksman = true,
       lua_ls = {
         settings = {
           Lua = {
@@ -113,24 +115,50 @@ return {
       powershell_es = {
         bundle_path = '~/Documents/spul/PowerShellEditorServices/module',
       },
-      taplo = {},
-    }
-
-    require('mason').setup()
-    local ensure_installed = vim.tbl_keys(servers or {})
-    vim.list_extend(ensure_installed, {
-      'stylua',
-    })
-    require('mason-tool-installer').setup { ensure_installed = ensure_installed }
-
-    require('mason-lspconfig').setup {
-      handlers = {
-        function(server_name)
-          local server = servers[server_name] or {}
-          server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-          require('lspconfig')[server_name].setup(server)
+      taplo = true,
+      ocamllsp = {
+        manual_install = true,
+        on_new_config = function(new_config, new_root_dir)
+          vim.notify(vim.inspect(new_config), vim.log.levels.DEBUG)
+          vim.notify(vim.inspect(new_root_dir), vim.log.levels.DEBUG)
         end,
       },
     }
+
+    local servers_to_install = vim.tbl_filter(function(key)
+      local t = servers[key]
+      if type(t) == 'table' then
+        return not t.manual_install
+      else
+        return t
+      end
+    end, vim.tbl_keys(servers))
+    vim.notify(vim.inspect(servers_to_install), vim.log.levels.WARN)
+
+    require('mason').setup()
+    local ensure_installed = {
+      'stylua',
+    }
+    vim.list_extend(ensure_installed, servers_to_install)
+    require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+    for name, config in pairs(servers) do
+      if config == true then
+        config = {}
+      end
+      config = vim.tbl_deep_extend('force', {}, {
+        capabilities = capabilities,
+      }, config)
+      lspconfig[name].setup(config)
+    end
+
+    --require('mason-lspconfig').setup {
+    --  handlers = {
+    --    function(server_name)
+    --      local server = servers[server_name] or {}
+    --      server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+    --      require('lspconfig')[server_name].setup(server)
+    --    end,
+    --  },
+    --}
   end,
 }
