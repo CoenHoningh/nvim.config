@@ -113,15 +113,13 @@ return {
         },
       },
       powershell_es = {
+        manual_install = true,
         bundle_path = '~/Documents/spul/PowerShellEditorServices/module',
       },
       taplo = true,
       ocamllsp = {
         manual_install = true,
-        on_new_config = function(new_config, new_root_dir)
-          vim.notify(vim.inspect(new_config), vim.log.levels.DEBUG)
-          vim.notify(vim.inspect(new_root_dir), vim.log.levels.DEBUG)
-        end,
+        cmd = { 'dune', 'exec', 'ocamllsp' },
       },
     }
 
@@ -133,7 +131,6 @@ return {
         return t
       end
     end, vim.tbl_keys(servers))
-    vim.notify(vim.inspect(servers_to_install), vim.log.levels.WARN)
 
     require('mason').setup()
     local ensure_installed = {
